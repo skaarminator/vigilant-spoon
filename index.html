@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title></title>
     <style>
       canvas{
@@ -51,11 +52,19 @@
             w: 40,
             h: 40,
             isMoving: false};
+          var goal = {
+            x: 580,
+            y: 160,
+            w: 50,
+            h: 36
+          };
           var canvas = document.getElementById("myCanvas");
           var ctx = canvas.getContext("2d");
           var blueZone, greenZone;
           var GAME_HEIGHT = 360;
           var GAME_WIDTH = 640;
+          var gameLive = true;
+
 
           var movePlayer = function(){
             player.isMoving = true;
@@ -73,6 +82,12 @@
 
           var update = function(){
 
+            if(checkCollision(player, goal)){
+              gameLive = false;
+              alert('You\'ve won!');
+              window.location = "";
+            }
+
             if (player.isMoving){
               player.x += player.speedX;
             }
@@ -84,6 +99,11 @@
               }else if(element.y >= GAME_HEIGHT -50){
                 element.y = GAME_HEIGHT -50;
                 element.speedY *= -1;
+              }
+              if(checkCollision(player, element)){
+                gameLive =false;
+                alert('Game Over');
+                window.location = "";
               }
             });
 
@@ -101,6 +121,9 @@
             });
             ctx.fillStyle = "#00FF00";
             ctx.fillRect(player.x, player.y, player.w, player.h);
+
+            ctx.fillStyle = "rgb(128,128,0)";
+            ctx.fillRect(goal.x, goal.y, goal.w, goal.h);
           };
 
           var step = function(){
@@ -108,8 +131,19 @@
             update();
             draw();
 
-            window.requestAnimationFrame(step);
+            if(gameLive){
+              window.requestAnimationFrame(step);
+            }
+
+
           };
+
+          var checkCollision = function(rect1, rect2){
+            var closeOnWidth = Math.abs(rect1.x - rect2.x) <= Math.max(rect1.w, rect2.w);
+            var closeOnHeight = Math.abs(rect1.y - rect2.y) <= Math.max(rect1.h, rect2.h);
+
+            return closeOnHeight && closeOnWidth;
+          }
 
           step();
         });
